@@ -649,6 +649,7 @@ var SHOWESTATE = false;
 var SHOWDEATH = false;
 var SHOWDISABILITY = false;
 var FIRSTLOAD = true;
+var NODATABEINGKEPT = true; // for special simple cases eg Atooh
 
 
 var DB;
@@ -1051,6 +1052,11 @@ var DB;
 			}).then(function() {
 				eval("reAssignFieldsPage" + PAGE + "()");
 			});
+		}
+		else {
+			if(NODATABEINGKEPT == true){
+				eval("reAssignFieldsPage" + PAGE + "()");
+			}
 		}
   };
   
@@ -32844,7 +32850,7 @@ function buildPageHome(){
 										s += `<td colspan=4 class="rowHeader">`;
 											s += `Client Details`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWCLIENT = false; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWCLIENT = false; setFocusFieldForClose('Client'); navTo('Home')">`;
 											s += `5`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -32877,7 +32883,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_CLIENT][0][3];
 										s += `<td style='text-align: right;'>`;
-											s += `<input id='fld1' type='text' class='crudField' style='width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_CLIENT][0][3] = this.value; DATAROW[C_CLIENT][3] = this.value; updateSpecificRowNoNav(C_CLIENT, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<input id='fld2' type='text' class='crudField' style='width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_CLIENT][0][3] = this.value; DATAROW[C_CLIENT][3] = this.value; updateSpecificRowNoNav(C_CLIENT, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -32896,7 +32902,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_CLIENT][0][5];
 										s += `<td style='text-align: right;'>`;
-											s += `<input id='fld1' type='text' class='crudField' style='width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_CLIENT][0][5] = this.value; DATAROW[C_CLIENT][5] = this.value; updateSpecificRowNoNav(C_CLIENT, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<input id='fld3' type='text' class='crudField' style='width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_CLIENT][0][5] = this.value; DATAROW[C_CLIENT][5] = this.value; updateSpecificRowNoNav(C_CLIENT, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td class="suffix">`;
 											s += `ddmmyyyy`;
@@ -32914,13 +32920,34 @@ function buildPageHome(){
 											s += `&nbsp;`;
 										s += `</td>`;
 										sVal = DATA[C_CLIENT][0][7];
+										var sMarriedAnc = "";
+										var sMarriedAncAccrual = "";
+										var sMarriedCOP = "";
+										var sMarriedOther = "";
+										switch(sVal) {
+											case "marriedanc":
+												sMarriedAnc = "selected";
+												break;
+											case "marriedancaccrual":
+												sMarriedAncAccrual = "selected";
+												break;
+											case "marriedcop":
+												sMarriedCOP = "selected";
+												break;
+											case "other":
+												sMarriedOther = "selected";
+												break;
+											default:
+												break;
+										}
 										s += `<td style='text-align: right;'>`;
-											s += `<select class='crudField'>`;
-												s += `<option>select one</option>`;
-												s += `<option>married COP</option>`;
-												s += `<option>Other</option>`;
+											s += `<select id='fld4' class='crudField' onchange='DATA[C_CLIENT][0][7] = this.value; DATAROW[C_CLIENT][7] = this.value; updateSpecificRow(C_CLIENT, 0); navTo("Home")' onfocus='FOCUSFIELD = this.id;'>`;
+												s += `<option value="none">select one</option>`;
+												s += `<option value="marriedanc" ` + sMarriedAnc + `>married ANC</option>`;
+												s += `<option value="marriedancaccrual" ` + sMarriedAncAccrual + `>married ANC with accrual</option>`;
+												s += `<option value="marriedcop" ` + sMarriedCOP + `>married COP</option>`;
+												s += `<option value="other" ` + sMarriedOther + `>other</option>`;
 											s += `</select>`;
-											//s += `<input id='fld1' type='text' class='crudField' style='width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_CLIENT][0][7] = this.value; DATAROW[C_CLIENT][7] = this.value; updateSpecificRowNoNav(C_CLIENT, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33002,7 +33029,7 @@ function buildPageHome(){
 										s += `<td colspan=4 class="rowHeader">`;
 											s += `Assumptions`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWASSUMPTIONS = false; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWASSUMPTIONS = false; setFocusFieldForClose('Assumptions'); navTo('Home')">`;
 											s += `5`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -33017,7 +33044,7 @@ function buildPageHome(){
 										
 										sVal = DATA[C_ASSUMPTION][0][0];
 										s += `<td style='text-align: right;'>`;
-											s += `<input id='fld1' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][0] = this.value; DATAROW[C_ASSUMPTION][0] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<input id='fld5' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][0] = this.value; DATAROW[C_ASSUMPTION][0] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td class="suffix">`;
 											s += `%`;
@@ -33036,7 +33063,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSUMPTION][0][1];
 										s += `<td style='text-align: right;'>`;
-											s += `<input id='fld1' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][1] = this.value; DATAROW[C_ASSUMPTION][1] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<input id='fld6' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][1] = this.value; DATAROW[C_ASSUMPTION][1] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td class="suffix">`;
 											s += `%`;
@@ -33055,7 +33082,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSUMPTION][0][2];
 										s += `<td style='text-align: right;'>`;
-											s += `<input id='fld1' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][2] = this.value; DATAROW[C_ASSUMPTION][2] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<input id='fld7' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][2] = this.value; DATAROW[C_ASSUMPTION][2] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td class="suffix">`;
 											s += `%`;
@@ -33074,7 +33101,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSUMPTION][0][3];
 										s += `<td style='text-align: right;'>`;
-											s += `<input id='fld1' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][3] = this.value; DATAROW[C_ASSUMPTION][3] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<input id='fld8' type='text' class='crudField' style='text-align: right; width: 30px' maxlength='4' value='` + sVal + `' onchange='DATA[C_ASSUMPTION][0][3] = this.value; DATAROW[C_ASSUMPTION][3] = this.value; updateSpecificRowNoNav(C_ASSUMPTION, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td class="suffix">`;
 											s += `%`;
@@ -33112,7 +33139,7 @@ function buildPageHome(){
 										s += `<td class="rowHeader">`;
 											s += `Assumptions`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWASSUMPTIONS = true; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWASSUMPTIONS = true; FOCUSFIELD = 'fld5'; navTo('Home')">`;
 											s += `6`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -33156,7 +33183,7 @@ function buildPageHome(){
 										s += `<td colspan=4 class="rowHeader">`;
 											s += `Estate`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWESTATE = false; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWESTATE = false; setFocusFieldForClose('Estate'); navTo('Home')">`;
 											s += `5`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -33182,7 +33209,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSET][0][0];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][0] = this.value; DATAROW[C_ASSET][0] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld9' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onblur='DATA[C_ASSET][0][0] = this.value; DATAROW[C_ASSET][0] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33201,7 +33228,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSET][0][1];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][1] = this.value; DATAROW[C_ASSET][1] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld10' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][1] = this.value; DATAROW[C_ASSET][1] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33220,7 +33247,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSET][0][2];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][2] = this.value; DATAROW[C_ASSET][2] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld11' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][2] = this.value; DATAROW[C_ASSET][2] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33239,7 +33266,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSET][0][3];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][3] = this.value; DATAROW[C_ASSET][3] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld12' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][3] = this.value; DATAROW[C_ASSET][3] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33258,7 +33285,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSET][0][4];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][4] = this.value; DATAROW[C_ASSET][4] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld13' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][4] = this.value; DATAROW[C_ASSET][4] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33277,7 +33304,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_ASSET][0][5];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][5] = this.value; DATAROW[C_ASSET][5] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld14' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_ASSET][0][5] = this.value; DATAROW[C_ASSET][5] = this.value; updateSpecificRowNoNav(C_ASSET, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33291,9 +33318,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowHeader2">`;
 											s += buildIndent(C_INDENT2) + `Total`;
 										s += `</td>`;
-										amt = 100000;
+										amt = calcAttoohTotalEstateDutyAssets();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id="fldAssetsTotal" class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33318,7 +33345,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_LIABILITY][0][0];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][0] = this.value; DATAROW[C_LIABILITY][0] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld15' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][0] = this.value; DATAROW[C_LIABILITY][0] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33332,9 +33359,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Executors fees (@ ` + DATA[C_ASSUMPTION][0][3] + `% excl VAT)`;
 										s += `</td>`;
-										amt = 150000;
+										amt = calcAttoohExecutorsFees();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id="fldExecutorsFees" class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33348,9 +33375,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Estimated CGT payable`;
 										s += `</td>`;
-										amt = 110000;
+										amt = calcAttoohCGT();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id="fldCGT" class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33369,7 +33396,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_LIABILITY][0][1];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][1] = this.value; DATAROW[C_LIABILITY][1] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld16' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][1] = this.value; DATAROW[C_LIABILITY][1] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33383,9 +33410,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Total estimated administraion costs`;
 										s += `</td>`;
-										amt = 120000;
+										amt = calcAttoohAdminCosts();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldAdminCosts' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33395,51 +33422,55 @@ function buildPageHome(){
 										s += `</td>`;
 									s += `</tr>`;
 									
-									s += `<tr class='rowGray'>`;
-										s += `<td class="rowLabel" style="text-align: left;">`;
-											s += buildIndent(C_INDENT3) + `Bequests to spouse`;
-										s += `</td>`;
-										s += `<td>`;
-											s += `&nbsp;`;
-										s += `</td>`;
-										sVal = DATA[C_LIABILITY][0][2];
-										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][2] = this.value; DATAROW[C_LIABILITY][2] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
-										s += `</td>`;
-										s += `<td>`;
-											s += `&nbsp;`;
-										s += `</td>`;
-										s += `<td>`;
-											s += `&nbsp;`;
-										s += `</td>`;
-									s += `</tr>`;
+									if(calcMarried() == true) {
+										s += `<tr class='rowGray'>`;
+											s += `<td class="rowLabel" style="text-align: left;">`;
+												s += buildIndent(C_INDENT3) + `Bequests to spouse`;
+											s += `</td>`;
+											s += `<td>`;
+												s += `&nbsp;`;
+											s += `</td>`;
+											sVal = DATA[C_LIABILITY][0][2];
+											s += `<td style='text-align: right;'>`;
+												s += `<span class="rowLabel">R&nbsp;</span><input id='fld17' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][2] = this.value; DATAROW[C_LIABILITY][2] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `</td>`;
+											s += `<td>`;
+												s += `&nbsp;`;
+											s += `</td>`;
+											s += `<td>`;
+												s += `&nbsp;`;
+											s += `</td>`;
+										s += `</tr>`;
+									}
 									
-									s += `<tr class='rowGray'>`;
-										s += `<td class="rowLabel" style="text-align: left;">`;
-											s += buildIndent(C_INDENT3) + `Accrual claim`;
-										s += `</td>`;
-										s += `<td>`;
-											s += `&nbsp;`;
-										s += `</td>`;
-										sVal = DATA[C_LIABILITY][0][3];
-										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][3] = this.value; DATAROW[C_LIABILITY][3] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
-										s += `</td>`;
-										s += `<td>`;
-											s += `&nbsp;`;
-										s += `</td>`;
-										s += `<td>`;
-											s += `&nbsp;`;
-										s += `</td>`;
-									s += `</tr>`;
+									if(calcMarriedANCWithAccrual() == true) {
+										s += `<tr class='rowGray'>`;
+											s += `<td class="rowLabel" style="text-align: left;">`;
+												s += buildIndent(C_INDENT3) + `Accrual claim`;
+											s += `</td>`;
+											s += `<td>`;
+												s += `&nbsp;`;
+											s += `</td>`;
+											sVal = DATA[C_LIABILITY][0][3];
+											s += `<td style='text-align: right;'>`;
+												s += `<span class="rowLabel">R&nbsp;</span><input id='fld18' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][3] = this.value; DATAROW[C_LIABILITY][3] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `</td>`;
+											s += `<td>`;
+												s += `&nbsp;`;
+											s += `</td>`;
+											s += `<td>`;
+												s += `&nbsp;`;
+											s += `</td>`;
+										s += `</tr>`;
+									}
 									
 									s += `<tr>`;
 										s += `<td colspan=2 class="rowHeader2">`;
 											s += buildIndent(C_INDENT2) + `Nett value of estate`;
 										s += `</td>`;
-										amt = 130000;
+										amt = calcAttoohNettValueOfEstate();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldNettValueOfEstate' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33459,9 +33490,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Estate duty rebate`;
 										s += `</td>`;
-										amt = 3500000;
+										amt = calcAttoohEstateDutyRebate();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldEstateDutyRebate' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33480,7 +33511,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_LIABILITY][0][4];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][4] = this.value; DATAROW[C_LIABILITY][4] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld19' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][4] = this.value; DATAROW[C_LIABILITY][4] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td colspan=2 class="suffix">`;
 											s += `R3,5M max`;
@@ -33491,9 +33522,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowHeader2">`;
 											s += buildIndent(C_INDENT2) + `Nett dutiable estate`;
 										s += `</td>`;
-										amt = 140000;
+										amt = calcAttoohNettDutiableEstate();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldNettDutiableEstate' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33507,9 +33538,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Estate duty @ 20% up to R30M and 25% over R30M`;
 										s += `</td>`;
-										amt = 160000;
+										amt = calcAttoohEstateDuty();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldEstateDuty' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33523,9 +33554,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowHeader2">`;
 											s += buildIndent(C_INDENT2) + `Nett estate duty payable by estate`;
 										s += `</td>`;
-										amt = 170000;
+										amt = calcAttoohNettEstateDutyPayableByEstate();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldNettEstateDutyPayableByEstate' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33551,9 +33582,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT2) + `Total funds available`;
 										s += `</td>`;
-										amt = 170000;
+										amt = calcAttoohLiquidityTotalFundsAvailable();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldLiquidityTotalFundsAvailable' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33573,9 +33604,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Liabilities`;
 										s += `</td>`;
-										amt = 180000;
+										amt = calcAttoohLiquidityLiabilities();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldLiquidityLiabilities' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33589,9 +33620,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Executor's fees, administration and funeral costs`;
 										s += `</td>`;
-										amt = 190000;
+										amt = calcAttoohLiquidityExexFeesAdminCostsFuneralCosts();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldLiquidityExexFeesAdminCostsFuneralCosts' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33605,9 +33636,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT3) + `Estate duty and CGT payable by estate`;
 										s += `</td>`;
-										amt = 200000;
+										amt = calcAttoohLiquidityEstateDutyAndCGTPayableByEstate();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldLiquidityEstateDutyAndCGTPayableByEstate' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33626,7 +33657,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_LIABILITY][0][5];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][5] = this.value; DATAROW[C_LIABILITY][5] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld20' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_LIABILITY][0][5] = this.value; DATAROW[C_LIABILITY][5] = this.value; updateSpecificRowNoNav(C_LIABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33640,9 +33671,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT2) + `Liquidity shortfall`;
 										s += `</td>`;
-										amt = 210000;
+										amt = calcAttoohLiquidityShortfall();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldLiquidityShortfall' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33680,7 +33711,7 @@ function buildPageHome(){
 										s += `<td class="rowHeader">`;
 											s += `Estate`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWESTATE = true; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWESTATE = true; FOCUSFIELD = 'fld9'; navTo('Home')">`;
 											s += `6`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -33724,7 +33755,7 @@ function buildPageHome(){
 										s += `<td colspan=4 class="rowHeader">`;
 											s += `Death`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWDEATH = false; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWDEATH = false; setFocusFieldForClose('Death'); navTo('Home')">`;
 											s += `5`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -33738,7 +33769,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_DEATH][0][0];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DEATH][0][0] = this.value; DATAROW[C_DEATH][0] = this.value; updateSpecificRowNoNav(C_DEATH, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld21' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DEATH][0][0] = this.value; DATAROW[C_DEATH][0] = this.value; updateSpecificRowNoNav(C_DEATH, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33750,14 +33781,14 @@ function buildPageHome(){
 									
 									s += `<tr class='rowGray'>`;
 										s += `<td class="rowLabel" style="text-align: left;">`;
-											s += buildIndent(C_INDENT1) + `Taxable term`;
+											s += buildIndent(C_INDENT1) + `Income term`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
 										s += `</td>`;
 										sVal = DATA[C_DEATH][0][1];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DEATH][0][1] = this.value; DATAROW[C_DEATH][1] = this.value; updateSpecificRowNoNav(C_DEATH, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld22' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DEATH][0][1] = this.value; DATAROW[C_DEATH][1] = this.value; updateSpecificRowNoNav(C_DEATH, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33792,7 +33823,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_DEATH][0][2];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DEATH][0][2] = this.value; DATAROW[C_DEATH][2] = this.value; updateSpecificRowNoNav(C_DEATH, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld23' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DEATH][0][2] = this.value; DATAROW[C_DEATH][2] = this.value; updateSpecificRowNoNav(C_DEATH, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33862,7 +33893,7 @@ function buildPageHome(){
 										s += `<td class="rowHeader">`;
 											s += `Death`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWDEATH = true; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWDEATH = true; FOCUSFIELD = 'fld21'; navTo('Home')">`;
 											s += `6`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -33904,9 +33935,9 @@ function buildPageHome(){
 									
 									s += `<tr>`;
 										s += `<td colspan=4 class="rowHeader">`;
-											s += `Death`;
+											s += `Disability`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWDISABILITY = false; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWDISABILITY = false; setFocusFieldForClose('Disability'); navTo('Home')">`;
 											s += `5`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -33920,7 +33951,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_DISABILITY][0][0];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DISABILITY][0][0] = this.value; DATAROW[C_DISABILITY][0] = this.value; updateSpecificRowNoNav(C_DISABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld24' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DISABILITY][0][0] = this.value; DATAROW[C_DISABILITY][0] = this.value; updateSpecificRowNoNav(C_DISABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33939,7 +33970,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_DISABILITY][0][1];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DISABILITY][0][1] = this.value; DATAROW[C_DISABILITY][1] = this.value; updateSpecificRowNoNav(C_DISABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld25' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DISABILITY][0][1] = this.value; DATAROW[C_DISABILITY][1] = this.value; updateSpecificRowNoNav(C_DISABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33974,7 +34005,7 @@ function buildPageHome(){
 										s += `</td>`;
 										sVal = DATA[C_DISABILITY][0][2];
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">R&nbsp;</span><input id='fld1' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DISABILITY][0][2] = this.value; DATAROW[C_DISABILITY][2] = this.value; updateSpecificRowNoNav(C_DISABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
+											s += `<span class="rowLabel">R&nbsp;</span><input id='fld26' type='text' class='crudField' style='text-align: right; width: 80px' maxlength='10' value='` + sVal + `' onchange='DATA[C_DISABILITY][0][2] = this.value; DATAROW[C_DISABILITY][2] = this.value; updateSpecificRowNoNav(C_DISABILITY, 0)' onfocus='FOCUSFIELD = this.id;'>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -34028,7 +34059,7 @@ function buildPageHome(){
 										s += `<td class="rowHeader">`;
 											s += `Disability`;
 										s += `</td>`;
-										s += `<td class="rowHeaderCarat" onclick="SHOWDISABILITY = true; navTo('Home')">`;
+										s += `<td class="rowHeaderCarat" onclick="SHOWDISABILITY = true; FOCUSFIELD = 'fld24'; navTo('Home')">`;
 											s += `6`;
 										s += `</td>`;
 									s += `</tr>`;
@@ -34057,6 +34088,550 @@ function actionPageHomeBack(){
 function layoutPageHome(){
 	document.getElementById('home0').style.top = "45%";
 	document.getElementById('home0').style.left = "45%";
+}
+
+function calcAttoohTotalEstateDutyAssets(){
+	var result = 0;
+	var primaryResidence = DATA[C_ASSET][0][0]
+	var otherFixedProperty = DATA[C_ASSET][0][1];
+	var businessInterest = DATA[C_ASSET][0][2];
+	var personalAssets = DATA[C_ASSET][0][3];
+	var lifeCoverAndLiquidAssets = DATA[C_ASSET][0][4];
+	var lifeCoverNotForEstate = DATA[C_ASSET][0][5];
+	
+	try {
+		if(calcMarriedCOP() == true){
+			primaryResidence = primaryResidence / 2;
+			otherFixedProperty = otherFixedProperty / 2;
+			businessInterest = businessInterest / 2;
+			personalAssets = personalAssets / 2;
+			lifeCoverAndLiquidAssets = lifeCoverAndLiquidAssets / 2;
+		}
+		result += Number(otherFixedProperty);
+		result += Number(businessInterest);
+		result += Number(personalAssets);
+		result += Number(lifeCoverAndLiquidAssets);
+		result += Number(lifeCoverNotForEstate);
+	}
+	catch(e){console.log("calcAttoohTotalEstateDutyAssets failed: " + e)};
+	return result;
+}
+
+function calcAttoohTotalEstateOnlyAssets(){
+	var result = 0;
+	var primaryResidence = DATA[C_ASSET][0][0]
+	var otherFixedProperty = DATA[C_ASSET][0][1];
+	var businessInterest = DATA[C_ASSET][0][2];
+	var personalAssets = DATA[C_ASSET][0][3];
+	var lifeCoverAndLiquidAssets = DATA[C_ASSET][0][4];
+	
+	try {
+		if(calcMarriedCOP() == true){
+			primaryResidence = primaryResidence / 2;
+			otherFixedProperty = otherFixedProperty / 2;
+			businessInterest = businessInterest / 2;
+			personalAssets = personalAssets / 2;
+			lifeCoverAndLiquidAssets = lifeCoverAndLiquidAssets / 2;
+		}
+		result += Number(otherFixedProperty);
+		result += Number(businessInterest);
+		result += Number(personalAssets);
+		result += Number(lifeCoverAndLiquidAssets);
+	}
+	catch(e){console.log("calcAttoohTotalEstateOnlyAssets failed: " + e)};
+	return result;
+}
+
+function calcAttoohExecutorsFees() {
+	var result = 0;
+	var otherFixedProperty = DATA[C_ASSET][0][1];
+	var businessInterest = DATA[C_ASSET][0][2];
+	var personalAssets = DATA[C_ASSET][0][3];
+	var lifeCoverAndLiquidAssets = DATA[C_ASSET][0][4];
+	try {
+		result += Number(otherFixedProperty);
+		result += Number(businessInterest);
+		result += Number(personalAssets);
+		result += Number(lifeCoverAndLiquidAssets);
+		result = result * (DATA[C_ASSUMPTION][0][3] / 100); // executors fee rate
+		result = result * (1 + DATA[C_ASSUMPTION][0][1] / 100); // VAT rate
+		if(calcMarriedCOP() == true){
+			result = result / 2;
+		}
+	}
+	catch(e){console.log("calcAttoohExecutorsFees failed: " + e)};
+	return result;
+}
+
+function calcAttoohCGT() {
+	var result = 0;
+	var primaryResidence = DATA[C_ASSET][0][0]
+	var otherFixedProperty = DATA[C_ASSET][0][1];
+	var businessInterest = DATA[C_ASSET][0][2];
+	var exclusion = 300000;
+	var baseCostRate = 20;
+	var baseCostConsideration = (100 - baseCostRate) / 100;
+	var gain = 0;
+	
+	try {
+		primaryResidence = primaryResidence * baseCostConsideration;
+		if(calcMarriedCOP() == true){
+			primaryResidence = primaryResidence / 2;
+			primaryResidence = primaryResidence - 1000000
+			otherFixedProperty = otherFixedProperty / 2;
+			businessInterest = businessInterest / 2;
+		}
+		else {
+			primaryResidence = primaryResidence - 2000000
+		}
+		if(primaryResidence < 0) {
+			primaryResidence = 0;
+		}
+		otherFixedProperty = otherFixedProperty * baseCostConsideration;
+		gain += Number(primaryResidence);
+		gain += Number(otherFixedProperty);
+		gain += Number(businessInterest);
+		gain = gain - exclusion;
+		if(gain > 0) {
+			result = gain * 0.18;
+		}
+	}
+	catch(e){console.log("calcAttoohCGT failed: " + e)};
+	return result;
+}
+
+function calcAttoohAdminCosts(){
+	var result = 0;
+	var primaryResidence = DATA[C_ASSET][0][0]
+	var otherFixedProperty = DATA[C_ASSET][0][1];
+	var totalFixedProperty = 0;
+	var transferFees = 0;
+	var deedsOfficeFees = 0;
+	var otherConveyanceCosts = 0;
+	var vat = 0;
+	var valuationCosts = 0;
+	var advertisingCosts = 0;
+	var ratesAndTaxes = 0;
+	var totalEstateOnlyAssets = 0;
+	var mastersFee = 0;
+	
+	try {
+		totalFixedProperty += Number(primaryResidence);
+		totalFixedProperty += Number(otherFixedProperty);
+		
+		if(totalFixedProperty > 0 && totalFixedProperty <= 100000) {
+			transferFees = 4800;
+		}
+		else if(totalFixedProperty > 100000 && totalFixedProperty <= 500000) {
+			transferFees = 4800 + (Math.floor(((totalFixedProperty - 100000) / 50000)) * 735);
+		}
+		else if(totalFixedProperty > 500000 && totalFixedProperty <= 1000000) {
+			transferFees = 10680 + (Math.floor(((totalFixedProperty - 500000) / 100000)) * 1470);
+		}
+		else if(totalFixedProperty > 1000000 && totalFixedProperty <= 5000000) {
+			transferFees = 18030 + (Math.floor(((totalFixedProperty - 1000000) / 100000)) * 735);
+		}
+		else if(totalFixedProperty > 5000000) {
+			transferFees = 47430 + (Math.floor(((totalFixedProperty - 5000000) / 100000)) * 370);
+		}
+		
+		if(calcMarriedCOP() == true){
+			if(transferFees > 0) {
+				transferFees = transferFees * 0.75
+			}
+		}		
+		
+		if(totalFixedProperty > 0 && totalFixedProperty <= 100000) {
+			deedsOfficeFees = 37;
+		}
+		else if(totalFixedProperty > 100000 && totalFixedProperty <= 200000) {
+			deedsOfficeFees = 81;
+		}
+		else if(totalFixedProperty > 200000 && totalFixedProperty <= 300000) {
+			deedsOfficeFees = 507;
+		}
+		else if(totalFixedProperty > 300000 && totalFixedProperty <= 600000) {
+			deedsOfficeFees = 632;
+		}
+		else if(totalFixedProperty > 600000 && totalFixedProperty <= 800000) {
+			deedsOfficeFees = 889;
+		}
+		else if(totalFixedProperty > 800000 && totalFixedProperty <= 1000000) {
+			deedsOfficeFees = 1020;
+		}
+		else if(totalFixedProperty > 1000000 && totalFixedProperty <= 2000000) {
+			deedsOfficeFees = 1146;
+		}
+		else if(totalFixedProperty > 200000 && totalFixedProperty <= 4000000) {
+			deedsOfficeFees = 1588;
+		}
+		else if(totalFixedProperty > 4000000 && totalFixedProperty <= 6000000) {
+			deedsOfficeFees = 1020;
+		}
+		else if(totalFixedProperty > 6000000 && totalFixedProperty <= 8000000) {
+			deedsOfficeFees = 2293;
+		}
+		else if(totalFixedProperty > 8000000 && totalFixedProperty <= 10000000) {
+			deedsOfficeFees = 2680;
+		}
+		else if(totalFixedProperty > 10000000 && totalFixedProperty <= 15000000) {
+			deedsOfficeFees = 3190;
+		}
+		else if(totalFixedProperty > 15000000 && totalFixedProperty <= 20000000) {
+			deedsOfficeFees = 3831;
+		}
+		else if(totalFixedProperty > 20000000) {
+			deedsOfficeFees = 5104;
+		}
+		
+		if(totalFixedProperty > 0) {
+			otherConveyanceCosts = 3000;
+		}
+		
+		vat = (Number(transferFees) + Number(otherConveyanceCosts)) * 0.15;
+		
+		if(totalFixedProperty > 0 && totalFixedProperty <= 10000) {
+			valuationCosts = 385;
+		}
+		else if(totalFixedProperty > 10000 && totalFixedProperty <= 20000) {
+			valuationCosts = 440;
+		}
+		else if(totalFixedProperty > 20000 && totalFixedProperty <= 300000) {
+			valuationCosts = 440 + (Math.floor(((totalFixedProperty - 20000) / 1000)) * 6.10);
+		}
+		else if(totalFixedProperty > 300000 && totalFixedProperty <= 800000) {
+			valuationCosts = 2145 + (Math.floor(((totalFixedProperty - 300000) / 1000)) * 4.10);
+		}
+		else if(totalFixedProperty > 800000) {
+			valuationCosts = 4200 + (Math.floor(((totalFixedProperty - 800000) / 1000)) * 3);
+		}
+		if(valuationCosts > 0) {
+			valuationCosts += valuationCosts * 0.15;
+		}
+		
+		if(totalFixedProperty > 0) {
+			advertisingCosts = 1000;
+		}
+		
+		if(totalFixedProperty > 0) {
+			ratesAndTaxes = 12000;
+		}
+		
+		totalEstateOnlyAssets = calcAttoohTotalEstateOnlyAssets();
+		
+		var wrk = totalEstateOnlyAssets;
+		wrk = Math.floor(wrk / 100000);
+		if(wrk <= 4) {
+			mastersFee = 600;
+		}
+		else {
+			mastersFee = 600 + ((wrk - 4) * 200);
+		}
+		if(mastersFee > 7000) {
+			mastersFee = 7000;
+		}
+		
+		if(totalFixedProperty > 0) {
+			result += Number(transferFees);
+			result += Number(deedsOfficeFees);
+			result += Number(otherConveyanceCosts);
+			result += Number(vat);
+			result += Number(valuationCosts);
+			result += Number(advertisingCosts);
+			result += Number(ratesAndTaxes);
+			result += Number(mastersFee);
+		}
+		else {
+			result += Number(advertisingCosts);
+			result += Number(ratesAndTaxes);
+			result += Number(mastersFee);
+		}
+	}
+	catch(e){console.log("calcAttoohAdminCosts failed: " + e)};
+	return result;
+	
+}
+
+function calcAttoohNettValueOfEstate() {
+	var result = 0;
+	var totalAssets = 0;
+	var wrk = 0;
+	try {
+		if(calcMarriedCOP() == false) {
+			totalAssets = calcAttoohTotalEstateDutyAssets();
+			if(totalAssets > 0) {
+				wrk += Number(DATA[C_LIABILITY][0][0]);
+				wrk += Number(calcAttoohExecutorsFees());
+				wrk += Number(calcAttoohCGT());
+				wrk += Number(DATA[C_LIABILITY][0][1]);
+				wrk += Number(calcAttoohAdminCosts());
+				wrk += Number(DATA[C_LIABILITY][0][2]);
+				wrk += Number(DATA[C_LIABILITY][0][3]);
+				result = totalAssets - wrk;
+			}
+		}
+	}
+	catch(e){console.log("calcAttoohNettValueOfEstate failed: " + e)};
+	
+	return result;
+}
+
+function calcAttoohEstateDutyRebate() {
+	var result = 0;
+	try {
+		if(calcMarriedCOP() == false) {
+			result = 3500000;
+		}
+	}
+	catch(e){console.log("calcAttoohEstateDutyRebate failed: " + e)};
+	
+	return result;
+}
+
+function calcAttoohNettDutiableEstate() {
+	var result = 0;
+	var nettEstateValue = 0;
+	var wrk = 0;
+	try {
+		if(calcMarriedCOP() == false) {
+			nettEstateValue = calcAttoohNettValueOfEstate();
+			wrk += Number(calcAttoohEstateDutyRebate());
+			wrk += Number(DATA[C_LIABILITY][0][4]);
+			wrk = nettEstateValue - wrk;
+			if(wrk > 0) {
+				result = wrk;
+			}
+		}
+	}
+	catch(e){console.log("calcAttoohNettDutiableEstate failed: " + e)};
+	
+	return result;
+}
+
+function calcAttoohEstateDuty() {
+	var result = 0;
+	var wrk = 0;
+	var dutiableEstate = calcAttoohNettDutiableEstate();
+	try {
+		if(calcMarriedCOP() == false) {
+			if(dutiableEstate < 30000000) {
+				wrk = dutiableEstate * 0.2;
+			}
+			else {
+				result = ((dutiableEstate - 30000000) * 0.25) + wrk;
+			}
+			result = wrk;
+		}
+	}
+	catch(e){console.log("calcAttoohEstateDuty failed: " + e)};
+	return result;
+}
+
+function calcAttoohNettEstateDutyPayableByEstate() {
+	var result = 0;
+	var wrk = 0;
+	var estateDuty = calcAttoohEstateDuty();
+	var lifeCoverNotPayableToEstate = DATA[C_ASSET][0][5];
+	var nettValueOfEstate = calcAttoohNettValueOfEstate();
+	try {
+		if(calcMarriedCOP() == false) {
+			wrk = estateDuty - (lifeCoverNotPayableToEstate / nettValueOfEstate * estateDuty);
+			if(wrk > 0) {
+				result = wrk;
+			}
+		}
+	}
+	catch(e){console.log("calcAttoohNettEstateDutyPayableByEstate failed: " + e)};
+	return result;
+}
+
+function calcAttoohLiquidityTotalFundsAvailable() {
+	var result = 0;
+	try {
+		if(calcMarriedCOP() == false) {
+			result = DATA[C_ASSET][0][4];
+		}
+	}
+	catch(e){console.log("calcAttoohLiquidityTotalFundsAvailable failed: " + e)};
+	return result;
+}
+
+function calcAttoohLiquidityLiabilities() {
+	var result = 0;
+	var liabilities = DATA[C_LIABILITY][0][0];
+	var accrualClaim = DATA[C_LIABILITY][0][3];
+	try {
+		if(calcMarriedCOP() == false) {
+			result += Number(liabilities);
+			result += Number(accrualClaim);
+		}
+	}
+	catch(e){console.log("calcAttoohLiquidityLiabilities failed: " + e)};
+	return result;
+}
+
+function calcAttoohLiquidityExexFeesAdminCostsFuneralCosts() {
+	var result = 0;
+	var executorsFees = calcAttoohExecutorsFees();
+	var funeralCosts = DATA[C_LIABILITY][0][1];
+	var totalAdminCosts = calcAttoohAdminCosts();
+	try {
+		if(calcMarriedCOP() == false) {
+			result += Number(executorsFees);
+			result += Number(funeralCosts);
+			result += Number(totalAdminCosts);
+		}
+	}
+	catch(e){console.log("calcAttoohLiquidityExexFeesAdminCostsFuneralCosts failed: " + e)};
+	return result;
+}
+
+function calcAttoohLiquidityEstateDutyAndCGTPayableByEstate() {
+	var result = 0;
+	var estimatedCBTPayable = calcAttoohCGT();
+	var netEstateDutyPayableByEstate = calcAttoohNettEstateDutyPayableByEstate();
+	try {
+		if(calcMarriedCOP() == false) {
+			result += Number(estimatedCBTPayable);
+			result += Number(netEstateDutyPayableByEstate);
+		}
+	}
+	catch(e){console.log("calcAttoohLiquidityEstateDutyAndCGTPayableByEstate failed: " + e)};
+	return result;
+}
+
+function calcAttoohLiquidityShortfall() {
+	var result = 0;
+	var totalFundsAvailable = calcAttoohLiquidityTotalFundsAvailable();
+	var liabilities = calcAttoohLiquidityLiabilities();
+	var execFeesAdminCostsAndFuneralCosts = calcAttoohLiquidityExexFeesAdminCostsFuneralCosts();
+	var estateDutyAndCGTPayableByEstate = calcAttoohLiquidityEstateDutyAndCGTPayableByEstate();
+	var cashBequests = DATA[C_LIABILITY][0][5];
+	var wrk = 0;
+	try {
+		if(calcMarriedCOP() == false) {
+			wrk += Number(liabilities);
+			wrk += Number(execFeesAdminCostsAndFuneralCosts);
+			wrk += Number(estateDutyAndCGTPayableByEstate);
+			wrk += Number(cashBequests);
+			result = totalFundsAvailable - wrk;
+		}
+	}
+	catch(e){console.log("calcAttoohLiquidityShortfall failed: " + e)};
+	return result;
+}
+
+function calcMarriedCOP(){
+	if(DATA[C_CLIENT][0][7] == "marriedcop"){
+		return true
+	}
+	return false;
+}
+
+function calcMarried(){
+	if(DATA[C_CLIENT][0][7] == "marriedanc" || DATA[C_CLIENT][0][7] == "marriedancaccrual" || DATA[C_CLIENT][0][7] == "marriedcop"){
+		return true
+	}
+	return false;
+}
+
+function calcMarriedANCWithAccrual(){
+	if(DATA[C_CLIENT][0][7] == "marriedancaccrual"){
+		return true
+	}
+	return false;
+}
+
+function reAssignFieldsPageHome() {
+	var amt = 0;
+	amt = calcAttoohTotalEstateDutyAssets();
+	document.getElementById("fldAssetsTotal").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohExecutorsFees();
+	document.getElementById("fldExecutorsFees").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohCGT();
+	document.getElementById("fldCGT").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohAdminCosts();
+	document.getElementById("fldAdminCosts").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohNettValueOfEstate();
+	document.getElementById("fldNettValueOfEstate").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohEstateDutyRebate();
+	document.getElementById("fldEstateDutyRebate").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohNettDutiableEstate();
+	document.getElementById("fldNettDutiableEstate").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohEstateDuty();
+	document.getElementById("fldEstateDuty").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohNettEstateDutyPayableByEstate();
+	document.getElementById("fldNettEstateDutyPayableByEstate").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohLiquidityTotalFundsAvailable();
+	document.getElementById("fldLiquidityTotalFundsAvailable").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohLiquidityLiabilities();
+	document.getElementById("fldLiquidityLiabilities").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohLiquidityExexFeesAdminCostsFuneralCosts();
+	document.getElementById("fldLiquidityExexFeesAdminCostsFuneralCosts").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohLiquidityEstateDutyAndCGTPayableByEstate();
+	document.getElementById("fldLiquidityEstateDutyAndCGTPayableByEstate").innerHTML = formatCurrForDisplay(amt);
+	amt = calcAttoohLiquidityShortfall();
+	document.getElementById("fldLiquidityShortfall").innerHTML = formatCurrForDisplay(amt);
+}
+
+function setFocusFieldForClose(s) {
+	if(s == "Disability") {
+		if(SHOWDEATH == true) {
+			FOCUSFIELD = "fld23";
+		}
+		else if(SHOWESTATE == true) {
+			FOCUSFIELD = "fld20";
+		}
+		else if(SHOWASSUMPTIONS == true) {
+			FOCUSFIELD = "fld8";
+		}
+		else if(SHOWCLIENT == true) {
+			FOCUSFIELD = "fld4";
+		}
+		else {
+			FOCUSFIELD = "";
+		}
+	}
+	
+	if(s == "Death") {
+		if(SHOWESTATE == true) {
+			FOCUSFIELD = "fld20";
+		}
+		else if(SHOWASSUMPTIONS == true) {
+			FOCUSFIELD = "fld8";
+		}
+		else if(SHOWCLIENT == true) {
+			FOCUSFIELD = "fld4";
+		}
+		else {
+			FOCUSFIELD = "";
+		}
+	}
+	
+	if(s == "Estate") {
+		if(SHOWASSUMPTIONS == true) {
+			FOCUSFIELD = "fld8";
+		}
+		else if(SHOWCLIENT == true) {
+			FOCUSFIELD = "fld4";
+		}
+		else {
+			FOCUSFIELD = "";
+		}
+	}
+	
+	if(s == "Assumptions") {
+		if(SHOWCLIENT == true) {
+			FOCUSFIELD = "fld4";
+		}
+		else {
+			FOCUSFIELD = "";
+		}
+	}
+	
+	if(s == "Client") {
+		FOCUSFIELD = "";
+	}
 }
 C_ASSET = "objAsset";
 DATA[C_ASSET] = new Array();
