@@ -33802,9 +33802,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT1) + `Capitalised income need`;
 										s += `</td>`;
-										amt = 220000;
+										amt = calcAttoohDeathCapitalIncomeNeed();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldDeathCapitalIncomeNeed' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33837,9 +33837,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT1) + `Liquidity shortfall`;
 										s += `</td>`;
-										amt = 230000;
+										amt = calcAttoohLiquidityShortfall();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldDeathLiquidityShortfall' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33853,9 +33853,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT1) + `Total need`;
 										s += `</td>`;
-										amt = 240000;
+										amt = calcAttoohDeathTotalNeed();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldDeathTotalNeed' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33984,9 +33984,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT1) + `Capitalised income need`;
 										s += `</td>`;
-										amt = 220000;
+										amt = calcAttoohDisabilityCapitalIncomeNeed();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldDisabilityCapitalIncomeNeed' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -34019,9 +34019,9 @@ function buildPageHome(){
 										s += `<td colspan=2 class="rowLabel">`;
 											s += buildIndent(C_INDENT1) + `Total need`;
 										s += `</td>`;
-										amt = 240000;
+										amt = calcAttoohDisabilityTotalNeed();
 										s += `<td style='text-align: right;'>`;
-											s += `<span class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											s += `<span id='fldDisabilityTotalNeed' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -34107,6 +34107,7 @@ function calcAttoohTotalEstateDutyAssets(){
 			personalAssets = personalAssets / 2;
 			lifeCoverAndLiquidAssets = lifeCoverAndLiquidAssets / 2;
 		}
+		result += Number(primaryResidence);
 		result += Number(otherFixedProperty);
 		result += Number(businessInterest);
 		result += Number(personalAssets);
@@ -34133,6 +34134,7 @@ function calcAttoohTotalEstateOnlyAssets(){
 			personalAssets = personalAssets / 2;
 			lifeCoverAndLiquidAssets = lifeCoverAndLiquidAssets / 2;
 		}
+		result += Number(primaryResidence);
 		result += Number(otherFixedProperty);
 		result += Number(businessInterest);
 		result += Number(personalAssets);
@@ -34144,11 +34146,13 @@ function calcAttoohTotalEstateOnlyAssets(){
 
 function calcAttoohExecutorsFees() {
 	var result = 0;
+	var primaryResidence = DATA[C_ASSET][0][0]
 	var otherFixedProperty = DATA[C_ASSET][0][1];
 	var businessInterest = DATA[C_ASSET][0][2];
 	var personalAssets = DATA[C_ASSET][0][3];
 	var lifeCoverAndLiquidAssets = DATA[C_ASSET][0][4];
 	try {
+		result += Number(primaryResidence);
 		result += Number(otherFixedProperty);
 		result += Number(businessInterest);
 		result += Number(personalAssets);
@@ -34521,6 +34525,75 @@ function calcAttoohLiquidityShortfall() {
 	return result;
 }
 
+function calcAttoohDeathCapitalIncomeNeed() {
+	var result = 0;	
+	var investmentRate = DATA[C_ASSUMPTION][0][2];
+	var inflationRate = DATA[C_ASSUMPTION][0][0];
+	var incomeNeed = DATA[C_DEATH][0][0];
+	var incomeTerm = DATA[C_DEATH][0][1];
+	
+	var rate = (Number(investmentRate) - Number(inflationRate)) / (100 + (Number(inflationRate)));
+	var nper = incomeTerm;
+	var val = incomeNeed * 12;
+	var val = 0 - val;
+	
+	try {
+		result = calcPV(rate, nper, val);
+	}
+	catch(e){console.log("calcAttoohDeathCapitalIncomeNeed failed: " + e)};
+	return result;
+}
+
+function calcAttoohDeathTotalNeed() {
+	var result = 0;	
+	var capitalIncomeNeed = Number(calcAttoohDeathCapitalIncomeNeed());
+	capitalIncomeNeed = -capitalIncomeNeed;
+	var capitalNeeds = DATA[C_DEATH][0][2];
+	var liquidityShortfall = Number(calcAttoohLiquidityShortfall());
+	liquidityShortfall = -liquidityShortfall;
+	
+	try {
+		result += Number(capitalIncomeNeed);
+		result += Number(capitalNeeds);
+		result += Number(liquidityShortfall);
+	}
+	catch(e){console.log("calcAttoohDeathTotalNeed failed: " + e)};
+	return result;
+}
+
+function calcAttoohDisabilityCapitalIncomeNeed() {
+	var result = 0;	
+	var investmentRate = DATA[C_ASSUMPTION][0][2];
+	var inflationRate = DATA[C_ASSUMPTION][0][0];
+	var incomeNeed = DATA[C_DISABILITY][0][0];
+	var incomeTerm = DATA[C_DISABILITY][0][1];
+	
+	var rate = (Number(investmentRate) - Number(inflationRate)) / (100 + (Number(investmentRate)));
+	var nper = incomeTerm;
+	var val = incomeNeed * 12;
+	var val = 0 - val;
+	
+	try {
+		result = calcPV(rate, nper, val);
+	}
+	catch(e){console.log("calcAttoohDisabilityCapitalIncomeNeed failed: " + e)};
+	return result;
+}
+
+function calcAttoohDisabilityTotalNeed() {
+	var result = 0;	
+	var capitalIncomeNeed = Number(calcAttoohDisabilityCapitalIncomeNeed());
+	capitalIncomeNeed = -capitalIncomeNeed;
+	var capitalNeeds = DATA[C_DISABILITY][0][2];
+	
+	try {
+		result += Number(capitalIncomeNeed);
+		result += Number(capitalNeeds);
+	}
+	catch(e){console.log("calcAttoohDeathTotalNeed failed: " + e)};
+	return result;
+}
+
 function calcMarriedCOP(){
 	if(DATA[C_CLIENT][0][7] == "marriedcop"){
 		return true
@@ -34544,34 +34617,50 @@ function calcMarriedANCWithAccrual(){
 
 function reAssignFieldsPageHome() {
 	var amt = 0;
-	amt = calcAttoohTotalEstateDutyAssets();
-	document.getElementById("fldAssetsTotal").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohExecutorsFees();
-	document.getElementById("fldExecutorsFees").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohCGT();
-	document.getElementById("fldCGT").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohAdminCosts();
-	document.getElementById("fldAdminCosts").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohNettValueOfEstate();
-	document.getElementById("fldNettValueOfEstate").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohEstateDutyRebate();
-	document.getElementById("fldEstateDutyRebate").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohNettDutiableEstate();
-	document.getElementById("fldNettDutiableEstate").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohEstateDuty();
-	document.getElementById("fldEstateDuty").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohNettEstateDutyPayableByEstate();
-	document.getElementById("fldNettEstateDutyPayableByEstate").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohLiquidityTotalFundsAvailable();
-	document.getElementById("fldLiquidityTotalFundsAvailable").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohLiquidityLiabilities();
-	document.getElementById("fldLiquidityLiabilities").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohLiquidityExexFeesAdminCostsFuneralCosts();
-	document.getElementById("fldLiquidityExexFeesAdminCostsFuneralCosts").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohLiquidityEstateDutyAndCGTPayableByEstate();
-	document.getElementById("fldLiquidityEstateDutyAndCGTPayableByEstate").innerHTML = formatCurrForDisplay(amt);
-	amt = calcAttoohLiquidityShortfall();
-	document.getElementById("fldLiquidityShortfall").innerHTML = formatCurrForDisplay(amt);
+	if(SHOWESTATE == true) {
+		amt = calcAttoohTotalEstateDutyAssets();
+		document.getElementById("fldAssetsTotal").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohExecutorsFees();
+		document.getElementById("fldExecutorsFees").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohCGT();
+		document.getElementById("fldCGT").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohAdminCosts();
+		document.getElementById("fldAdminCosts").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohNettValueOfEstate();
+		document.getElementById("fldNettValueOfEstate").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohEstateDutyRebate();
+		document.getElementById("fldEstateDutyRebate").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohNettDutiableEstate();
+		document.getElementById("fldNettDutiableEstate").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohEstateDuty();
+		document.getElementById("fldEstateDuty").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohNettEstateDutyPayableByEstate();
+		document.getElementById("fldNettEstateDutyPayableByEstate").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohLiquidityTotalFundsAvailable();
+		document.getElementById("fldLiquidityTotalFundsAvailable").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohLiquidityLiabilities();
+		document.getElementById("fldLiquidityLiabilities").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohLiquidityExexFeesAdminCostsFuneralCosts();
+		document.getElementById("fldLiquidityExexFeesAdminCostsFuneralCosts").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohLiquidityEstateDutyAndCGTPayableByEstate();
+		document.getElementById("fldLiquidityEstateDutyAndCGTPayableByEstate").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohLiquidityShortfall();
+		document.getElementById("fldLiquidityShortfall").innerHTML = formatCurrForDisplay(amt);
+	}
+	if(SHOWDEATH == true) {
+		amt = calcAttoohDeathCapitalIncomeNeed();
+		document.getElementById("fldDeathCapitalIncomeNeed").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohLiquidityShortfall();
+		document.getElementById("fldDeathLiquidityShortfall").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohDeathTotalNeed();
+		document.getElementById("fldDeathTotalNeed").innerHTML = formatCurrForDisplay(amt);
+	}
+	if(SHOWDISABILITY == true) {
+		amt = calcAttoohDisabilityCapitalIncomeNeed();
+		document.getElementById("fldDisabilityCapitalIncomeNeed").innerHTML = formatCurrForDisplay(amt);
+		amt = calcAttoohDisabilityTotalNeed();
+		document.getElementById("fldDisabilityTotalNeed").innerHTML = formatCurrForDisplay(amt);
+	}
 }
 
 function setFocusFieldForClose(s) {
