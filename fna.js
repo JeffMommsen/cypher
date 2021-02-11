@@ -33667,13 +33667,23 @@ function buildPageHome(){
 										s += `</td>`;
 									s += `</tr>`;
 									
+									amt = calcAttoohLiquidityShortfall();
 									s += `<tr>`;
 										s += `<td colspan=2 class="rowLabel">`;
-											s += buildIndent(C_INDENT2) + `Liquidity shortfall`;
+											if(amt < 0) {
+												s += `<span id='fldLiquidityShortfallLabel' class="rowLabel">` + `Liquidity shortfall` + `</span>`;
+											}
+											else {
+												s += `<span id='fldLiquidityShortfallLabel' class="rowLabel">` + `Liquidity surplus` + `</span>`;
+											}
 										s += `</td>`;
-										amt = calcAttoohLiquidityShortfall();
 										s += `<td style='text-align: right;'>`;
-											s += `<span id='fldLiquidityShortfall' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											if(amt < 0) {
+												s += `<span id='fldLiquidityShortfall' class="calcMinusValue">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											}
+											else {
+												s += `<span id='fldLiquidityShortfall' class="calcPlusValue">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											}
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -33833,13 +33843,23 @@ function buildPageHome(){
 										s += `</td>`;
 									s += `</tr>`;
 									
+									amt = calcAttoohLiquidityShortfall();
 									s += `<tr>`;
-										s += `<td colspan=2 class="rowLabel">`;
-											s += buildIndent(C_INDENT1) + `Liquidity shortfall`;
+										s += `<td colspan=2 class="rowLabel" style="text-align: left;">`;
+											if(amt < 0) {
+												s += `<span id='fldDeathLiquidityShortfallLabel' class="rowLabel">` + buildIndent(C_INDENT1) + `Liquidity shortfall` + `</span>`;
+											}
+											else {
+												s += `<span id='fldDeathLiquidityShortfallLabel' class="rowLabel">` + buildIndent(C_INDENT1) + `Liquidity surplus` + `</span>`;
+											}
 										s += `</td>`;
-										amt = calcAttoohLiquidityShortfall();
 										s += `<td style='text-align: right;'>`;
-											s += `<span id='fldDeathLiquidityShortfall' class="rowLabel">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											if(amt < 0) {
+												s += `<span id='fldDeathLiquidityShortfall' class="calcMinusValue">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											}
+											else {
+												s += `<span id='fldDeathLiquidityShortfall' class="calcPlusValue">` + formatCurrForDisplay(amt, 1) + `</span>`;
+											}
 										s += `</td>`;
 										s += `<td>`;
 											s += `&nbsp;`;
@@ -34241,7 +34261,7 @@ function calcAttoohAdminCosts(){
 		
 		if(calcMarriedCOP() == true){
 			if(transferFees > 0) {
-				transferFees = transferFees * 0.75
+				transferFees = transferFees * 0.75;
 			}
 		}		
 		
@@ -34350,6 +34370,10 @@ function calcAttoohAdminCosts(){
 			result += Number(ratesAndTaxes);
 			result += Number(mastersFee);
 		}
+		
+		if(calcMarriedCOP() == true) {
+			result = result / 2;
+		}
 	}
 	catch(e){console.log("calcAttoohAdminCosts failed: " + e)};
 	return result;
@@ -34361,18 +34385,16 @@ function calcAttoohNettValueOfEstate() {
 	var totalAssets = 0;
 	var wrk = 0;
 	try {
-		if(calcMarriedCOP() == false) {
-			totalAssets = calcAttoohTotalEstateDutyAssets();
-			if(totalAssets > 0) {
-				wrk += Number(DATA[C_LIABILITY][0][0]);
-				wrk += Number(calcAttoohExecutorsFees());
-				wrk += Number(calcAttoohCGT());
-				wrk += Number(DATA[C_LIABILITY][0][1]);
-				wrk += Number(calcAttoohAdminCosts());
-				wrk += Number(DATA[C_LIABILITY][0][2]);
-				wrk += Number(DATA[C_LIABILITY][0][3]);
-				result = totalAssets - wrk;
-			}
+		totalAssets = calcAttoohTotalEstateDutyAssets();
+		if(totalAssets > 0) {
+			wrk += Number(DATA[C_LIABILITY][0][0]);
+			wrk += Number(calcAttoohExecutorsFees());
+			wrk += Number(calcAttoohCGT());
+			wrk += Number(DATA[C_LIABILITY][0][1]);
+			wrk += Number(calcAttoohAdminCosts());
+			wrk += Number(DATA[C_LIABILITY][0][2]);
+			wrk += Number(DATA[C_LIABILITY][0][3]);
+			result = totalAssets - wrk;
 		}
 	}
 	catch(e){console.log("calcAttoohNettValueOfEstate failed: " + e)};
@@ -34383,9 +34405,7 @@ function calcAttoohNettValueOfEstate() {
 function calcAttoohEstateDutyRebate() {
 	var result = 0;
 	try {
-		if(calcMarriedCOP() == false) {
-			result = 3500000;
-		}
+		result = 3500000;
 	}
 	catch(e){console.log("calcAttoohEstateDutyRebate failed: " + e)};
 	
@@ -34397,14 +34417,12 @@ function calcAttoohNettDutiableEstate() {
 	var nettEstateValue = 0;
 	var wrk = 0;
 	try {
-		if(calcMarriedCOP() == false) {
-			nettEstateValue = calcAttoohNettValueOfEstate();
-			wrk += Number(calcAttoohEstateDutyRebate());
-			wrk += Number(DATA[C_LIABILITY][0][4]);
-			wrk = nettEstateValue - wrk;
-			if(wrk > 0) {
-				result = wrk;
-			}
+		nettEstateValue = calcAttoohNettValueOfEstate();
+		wrk += Number(calcAttoohEstateDutyRebate());
+		wrk += Number(DATA[C_LIABILITY][0][4]);
+		wrk = nettEstateValue - wrk;
+		if(wrk > 0) {
+			result = wrk;
 		}
 	}
 	catch(e){console.log("calcAttoohNettDutiableEstate failed: " + e)};
@@ -34417,15 +34435,13 @@ function calcAttoohEstateDuty() {
 	var wrk = 0;
 	var dutiableEstate = calcAttoohNettDutiableEstate();
 	try {
-		if(calcMarriedCOP() == false) {
-			if(dutiableEstate < 30000000) {
-				wrk = dutiableEstate * 0.2;
-			}
-			else {
-				result = ((dutiableEstate - 30000000) * 0.25) + wrk;
-			}
-			result = wrk;
+		if(dutiableEstate < 30000000) {
+			wrk = dutiableEstate * 0.2;
 		}
+		else {
+			result = ((dutiableEstate - 30000000) * 0.25) + wrk;
+		}
+		result = wrk;
 	}
 	catch(e){console.log("calcAttoohEstateDuty failed: " + e)};
 	return result;
@@ -34438,11 +34454,9 @@ function calcAttoohNettEstateDutyPayableByEstate() {
 	var lifeCoverNotPayableToEstate = DATA[C_ASSET][0][5];
 	var nettValueOfEstate = calcAttoohNettValueOfEstate();
 	try {
-		if(calcMarriedCOP() == false) {
-			wrk = estateDuty - (lifeCoverNotPayableToEstate / nettValueOfEstate * estateDuty);
-			if(wrk > 0) {
-				result = wrk;
-			}
+		wrk = estateDuty - (lifeCoverNotPayableToEstate / nettValueOfEstate * estateDuty);
+		if(wrk > 0) {
+			result = wrk;
 		}
 	}
 	catch(e){console.log("calcAttoohNettEstateDutyPayableByEstate failed: " + e)};
@@ -34452,9 +34466,7 @@ function calcAttoohNettEstateDutyPayableByEstate() {
 function calcAttoohLiquidityTotalFundsAvailable() {
 	var result = 0;
 	try {
-		if(calcMarriedCOP() == false) {
-			result = DATA[C_ASSET][0][4];
-		}
+		result = DATA[C_ASSET][0][4];
 	}
 	catch(e){console.log("calcAttoohLiquidityTotalFundsAvailable failed: " + e)};
 	return result;
@@ -34480,11 +34492,12 @@ function calcAttoohLiquidityExexFeesAdminCostsFuneralCosts() {
 	var funeralCosts = DATA[C_LIABILITY][0][1];
 	var totalAdminCosts = calcAttoohAdminCosts();
 	try {
-		if(calcMarriedCOP() == false) {
-			result += Number(executorsFees);
-			result += Number(funeralCosts);
-			result += Number(totalAdminCosts);
+		result += Number(executorsFees);
+		result += Number(totalAdminCosts);
+		if(calcMarriedCOP() == true) {
+			result = result * 2;
 		}
+		result += Number(funeralCosts);
 	}
 	catch(e){console.log("calcAttoohLiquidityExexFeesAdminCostsFuneralCosts failed: " + e)};
 	return result;
@@ -34492,13 +34505,11 @@ function calcAttoohLiquidityExexFeesAdminCostsFuneralCosts() {
 
 function calcAttoohLiquidityEstateDutyAndCGTPayableByEstate() {
 	var result = 0;
-	var estimatedCBTPayable = calcAttoohCGT();
+	var estimatedCGTPayable = calcAttoohCGT();
 	var netEstateDutyPayableByEstate = calcAttoohNettEstateDutyPayableByEstate();
 	try {
-		if(calcMarriedCOP() == false) {
-			result += Number(estimatedCBTPayable);
-			result += Number(netEstateDutyPayableByEstate);
-		}
+		result += Number(estimatedCGTPayable);
+		result += Number(netEstateDutyPayableByEstate);
 	}
 	catch(e){console.log("calcAttoohLiquidityEstateDutyAndCGTPayableByEstate failed: " + e)};
 	return result;
@@ -34513,13 +34524,11 @@ function calcAttoohLiquidityShortfall() {
 	var cashBequests = DATA[C_LIABILITY][0][5];
 	var wrk = 0;
 	try {
-		if(calcMarriedCOP() == false) {
-			wrk += Number(liabilities);
-			wrk += Number(execFeesAdminCostsAndFuneralCosts);
-			wrk += Number(estateDutyAndCGTPayableByEstate);
-			wrk += Number(cashBequests);
-			result = totalFundsAvailable - wrk;
-		}
+		wrk += Number(liabilities);
+		wrk += Number(execFeesAdminCostsAndFuneralCosts);
+		wrk += Number(estateDutyAndCGTPayableByEstate);
+		wrk += Number(cashBequests);
+		result = totalFundsAvailable - wrk;
 	}
 	catch(e){console.log("calcAttoohLiquidityShortfall failed: " + e)};
 	return result;
@@ -34645,13 +34654,29 @@ function reAssignFieldsPageHome() {
 		amt = calcAttoohLiquidityEstateDutyAndCGTPayableByEstate();
 		document.getElementById("fldLiquidityEstateDutyAndCGTPayableByEstate").innerHTML = formatCurrForDisplay(amt);
 		amt = calcAttoohLiquidityShortfall();
-		document.getElementById("fldLiquidityShortfall").innerHTML = formatCurrForDisplay(amt);
+		document.getElementById("fldLiquidityShortfall").innerHTML = formatCurrForDisplay(amt, 1);
+		if(amt > 0) {
+			document.getElementById("fldLiquidityShortfallLabel").innerHTML = `Liquidity surplus`;
+			document.getElementById("fldLiquidityShortfall").className = "calcPlusValue";
+		}
+		else {
+			document.getElementById("fldLiquidityShortfallLabel").innerHTML = `Liquidity shortfall`;
+			document.getElementById("fldLiquidityShortfall").className = "calcMinusValue";
+		}
 	}
 	if(SHOWDEATH == true) {
 		amt = calcAttoohDeathCapitalIncomeNeed();
 		document.getElementById("fldDeathCapitalIncomeNeed").innerHTML = formatCurrForDisplay(amt);
 		amt = calcAttoohLiquidityShortfall();
-		document.getElementById("fldDeathLiquidityShortfall").innerHTML = formatCurrForDisplay(amt);
+		document.getElementById("fldDeathLiquidityShortfall").innerHTML = formatCurrForDisplay(amt, 1);
+		if(amt > 0) {
+			document.getElementById("fldDeathLiquidityShortfallLabel").innerHTML = buildIndent(C_INDENT1) + `Liquidity surplus`;
+			document.getElementById("fldDeathLiquidityShortfall").className = "calcPlusValue";
+		}
+		else {
+			document.getElementById("fldDeathLiquidityShortfallLabel").innerHTML = buildIndent(C_INDENT1) + `Liquidity shortfall`;
+			document.getElementById("fldDeathLiquidityShortfall").className = "calcMinusValue";
+		}
 		amt = calcAttoohDeathTotalNeed();
 		document.getElementById("fldDeathTotalNeed").innerHTML = formatCurrForDisplay(amt);
 	}
