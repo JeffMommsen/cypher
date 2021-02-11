@@ -1519,7 +1519,30 @@ filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 	color: #ffffff;
 	}
 
+.calcMinusValue{
+	background: #ffffff;
+	border: 2px solid #ffffff;
+	border-radius: 3px;
+	font-family: lato;
+	font-size: 12px;
+	font-weight: normal;
+	font-style: normal;
+	font-stretch: normal;
+	line-height: 1.29;
+	letter-spacing: normal;
+	color: #ffffff;
+}
 
+.calcPlusValue{
+	font-family: lato;
+	font-size: 12px;
+	font-weight: normal;
+	font-style: normal;
+	font-stretch: normal;
+	line-height: 1.29;
+	letter-spacing: normal;
+	color: #ffffff;
+}
 
 
 
